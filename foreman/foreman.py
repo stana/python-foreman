@@ -307,10 +307,14 @@ class Foreman:
         resource_data[resource] = data
         return self._post_request(url=url, data=resource_data)
 
-    def update_resource(self, resource_type, resource_id, data, component=None, component_id=None):
+    def update_resource(self, resource_type, resource, resource_id, data, component=None, component_id=None):
         url = self._get_resource_url(resource_type=resource_type, resource_id=resource_id,
                                      component=component, component_id=component_id)
-        return self._put_request(url=url, data=data)
+        resource_data = {
+            "id": resource_id,
+            resource: data
+        }
+        return self._put_request(url=url, data=resource_data)
 
     def delete_resource(self, resource_type, resource_id, component=None, component_id=None):
         url = self._get_resource_url(resource_type=resource_type, resource_id=resource_id,
@@ -372,7 +376,7 @@ class Foreman:
         return self.delete_resource(resource_type=AUTH_SOURCE_LDAPS, resource_id=id)
 
     def update_auth_source_ldap(self, id, data):
-        return self.update_resource(resource_type=AUTH_SOURCE_LDAPS, resource_id=id, data=data)
+        return self.update_resource(resource_type=AUTH_SOURCE_LDAPS, resource=AUTH_SOURCE_LDAP, resource_id=id, data=data)
 
     def get_common_parameters(self):
         return self.get_resources(resource_type=COMMON_PARAMETERS)
@@ -421,6 +425,7 @@ class Foreman:
 
     def update_compute_attribute(self, id, data):
         return self.update_resource(resource_type=COMPUTE_ATTRIBUTES,
+                                    resource=COMPUTE_ATTRIBUTE,
                                     resource_id=id,
                                     data={'vm_attrs': data})
 
@@ -458,6 +463,7 @@ class Foreman:
     def update_compute_resource(self, id, data):
         """Update the parameters of a compute resources"""
         return self.update_resource(resource_type=COMPUTE_RESOURCES,
+                                    resource=COMPUTE_RESOURCE,
                                     data=data,
                                     resource_id=id)
 
@@ -488,6 +494,7 @@ class Foreman:
     def update_compute_resource_image(self, compute_resource_id, data):
         """Update the parameters of an image on a given compute resource"""
         return self.update_resource(resource_type=COMPUTE_RESOURCES,
+                                    resource=COMPUTE_RESOURCE,
                                     data=data,
                                     resource_id=compute_resource_id,
                                     component=IMAGES,
@@ -508,7 +515,7 @@ class Foreman:
                                     data=data)
 
     def update_config_template(self, id, data):
-        return self.update_resource(resource_type=CONFIG_TEMPLATES, resource_id=id, data=data)
+        return self.update_resource(resource_type=CONFIG_TEMPLATES, resource=CONFIG_TEMPLATE, resource_id=id, data=data)
 
     def delete_config_template(self, id):
         return self.delete_resource(resource_type=CONFIG_TEMPLATES, resource_id=id)
@@ -526,7 +533,7 @@ class Foreman:
         return self.create_resource(resource_type=DOMAINS, resource=DOMAIN, data=data)
 
     def update_domain(self, id, data):
-        return self.update_resource(resource_type=DOMAINS, resource_id=id, data=data)
+        return self.update_resource(resource_type=DOMAINS, resource=DOMAIN, resource_id=id, data=data)
 
     def delete_domain(self, id):
         return self.delete_resource(resource_type=DOMAINS, resource_id=id)
@@ -593,13 +600,14 @@ class Foreman:
         return self.create_resource(resource_type=HOSTS, resource=HOST, data=data)
 
     def update_host(self, id, data):
-        return self.update_resource(resource_type=HOSTS, resource_id=id, data=data)
+        return self.update_resource(resource_type=HOSTS, resource=HOST, resource_id=id, data=data)
 
     def delete_host(self, id):
         return self.delete_resource(resource_type=HOSTS, resource_id=id)
 
     def set_host_power(self, host_id, action):
         return self.update_resource(resource_type=HOSTS,
+                                    resource=HOST,
                                     resource_id=host_id,
                                     component='power',
                                     data={'power_action': action, HOST: {}})
@@ -640,6 +648,7 @@ class Foreman:
 
     def update_host_parameter(self, host_id, parameter_id, data):
         return self.update_resource(resource_type=HOSTS,
+                                    resource=HOST,
                                     resource_id=host_id,
                                     component=PARAMETERS,
                                     component_id=parameter_id,
@@ -664,7 +673,7 @@ class Foreman:
         return self.create_resource(resource_type=HOSTGROUPS, resource=HOSTGROUP, data=data)
 
     def update_hostgroup(self, id, data):
-        return self.update_resource(resource_type=HOSTGROUPS, resource_id=id, data=data)
+        return self.update_resource(resource_type=HOSTGROUPS, resource=HOSTGROUP, resource_id=id, data=data)
 
     def delete_hostgroup(self, id):
         return self.delete_resource(resource_type=HOSTGROUPS, resource_id=id)
@@ -684,6 +693,7 @@ class Foreman:
 
     def update_hostgroup_parameter(self, hostgroup_id, parameter_id, data):
         return self.update_resource(resource_type=HOSTGROUPS,
+                                    resource=HOSTGROUP,
                                     resource_id=hostgroup_id,
                                     component=PARAMETERS,
                                     component_id=parameter_id,
@@ -726,7 +736,7 @@ class Foreman:
         return self.delete_resource(resource_type=MEDIA, resource_id=id)
 
     def update_medium(self, id, data):
-        return self.update_resource(resource_type=MEDIA, resource_id=id, data=data)
+        return self.update_resource(resource_type=MEDIA, resource=MEDIUM, resource_id=id, data=data)
 
     def get_organizations(self):
         return self.get_resources(resource_type=ORGANIZATIONS)
@@ -756,7 +766,7 @@ class Foreman:
         return self.create_resource(resource_type=OPERATINGSYSTEMS, resource=OPERATINGSYSTEM, data=data)
 
     def update_operatingsystem(self, id, data):
-        return self.update_resource(resource_type=OPERATINGSYSTEMS, resource_id=id, data=data)
+        return self.update_resource(resource_type=OPERATINGSYSTEMS, resource=OPERATINGSYSTEM, resource_id=id, data=data)
 
     def delete_operatingsystem(self, id):
         return self.delete_resource(resource_type=OPERATINGSYSTEMS, resource_id=id)
@@ -773,9 +783,9 @@ class Foreman:
                                     resource_id=id, component=OS_DEFAULT_TEMPLATES)
 
     def update_operatingsystem_default_template(self, id, template_id, data):
-        return self.update_resource(resource_type=OPERATINGSYSTEMS, resource_id=id,
+        return self.update_resource(resource_type=OPERATINGSYSTEMS, resource=OS_DEFAULT_TEMPLATE, resource_id=id,
                                     component=OS_DEFAULT_TEMPLATES, component_id=template_id,
-                                    resource=OS_DEFAULT_TEMPLATE, data=data)
+                                    data=data)
 
     def delete_operatingsystem_default_template(self, id, template_id):
         return self.delete_resource(resource_type=OPERATINGSYSTEMS, resource_id=id,
@@ -794,7 +804,7 @@ class Foreman:
         return self.create_resource(resource_type=PARTITION_TABLES, resource=PARTITION_TABLE, data=data)
 
     def update_partition_table(self, id, data):
-        return self.update_resource(resource_type=PARTITION_TABLES, resource_id=id, data=data)
+        return self.update_resource(resource_type=PARTITION_TABLES, resource=PARTITION_TABLE, resource_id=id, data=data)
 
     def delete_partition_table(self, id):
         return self.delete_resource(resource_type=PARTITION_TABLES, resource_id=id)
@@ -824,7 +834,7 @@ class Foreman:
         return self.delete_resource(resource_type=REALMS, resource_id=id)
 
     def update_realm(self, id, data):
-        return self.update_resource(resource_type=REALMS, resource_id=id, data=data)
+        return self.update_resource(resource_type=REALMS, resource=REALM, resource_id=id, data=data)
 
     def get_roles(self):
         return self.get_resources(resource_type=ROLES)
@@ -848,7 +858,7 @@ class Foreman:
         return self.search_resource(resource_type=SETTINGS, data=data)
 
     def update_setting(self, id, data):
-        return self.update_resource(resource_type=SETTINGS, resource_id=id, data=data)
+        return self.update_resource(resource_type=SETTINGS, resource=SETTING, resource_id=id, data=data)
 
     def get_smart_proxies(self):
         return self.get_resources(resource_type=SMART_PROXIES)
@@ -863,7 +873,7 @@ class Foreman:
         return self.create_resource(resource_type=SMART_PROXIES, resource=SMART_PROXY, data=data)
 
     def update_smart_proxy(self, id, data):
-        return self.update_resource(resource_type=SMART_PROXIES, resource_id=id, data=data)
+        return self.update_resource(resource_type=SMART_PROXIES, resource=SMART_PROXY, resource_id=id, data=data)
 
     def delete_smart_proxy(self, id):
         return self.delete_resource(resource_type=SMART_PROXIES, resource_id=id)
@@ -881,7 +891,7 @@ class Foreman:
         return self.create_resource(resource_type=SUBNETS, resource=SUBNET, data=data)
 
     def update_subnet(self, id, data):
-        return self.update_resource(resource_type=SUBNETS, resource_id=id, data=data)
+        return self.update_resource(resource_type=SUBNETS, resource=SUBNET, resource_id=id, data=data)
 
     def delete_subnet(self, id):
         return self.delete_resource(resource_type=SUBNETS, resource_id=id)
@@ -902,7 +912,7 @@ class Foreman:
         return self.create_resource(resource_type=USERS, resource=USER, data=data)
 
     def update_user(self, id, data):
-        return self.update_resource(resource_type=USERS, resource_id=id, data=data)
+        return self.update_resource(resource_type=USERS, resource=USER, resource_id=id, data=data)
 
     def delete_user(self, id):
         return self.delete_resource(resource_type=USERS, resource_id=id)
@@ -920,7 +930,7 @@ class Foreman:
         return self.create_resource(resource_type=USERGROUPS, resource=USERGROUP, data=data)
 
     def update_usergroup(self, id, data):
-        return self.update_resource(resource_type=USERGROUPS, resource_id=id, data=data)
+        return self.update_resource(resource_type=USERGROUPS, resource=USERGROUP, resource_id=id, data=data)
 
     def delete_usergroup(self, id):
         return self.delete_resource(resource_type=USERGROUPS, resource_id=id)
